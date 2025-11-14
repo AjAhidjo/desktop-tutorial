@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumbi International Academy Reader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define the 'surprise' animation */
+        @keyframes pulse-surprise {
+            0%, 100% {
+                transform: scale(1);
+                background-color: #d1d5db; /* Gray */
+            }
+            50% {
+                transform: scale(1.02);
+                background-color: #fca5a5; /* Red (the 'surprise') */
+            }
+        }
+
+        .surprise {
+            animation: pulse-surprise 0.2s ease-in-out 2; /* Runs twice */
+        }
+        
+        .content-box {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 8rem; /* Passages require 8rem for the prompt text */
+            position: relative;
+        }
+
+        /* Set default font to Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* --- GLOBAL HIDDEN/VISIBLE CONTENT STYLES (Used for PASSAGES) --- */
+        .hidden-content {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            /* Use a generous height transition for the passages to expand smoothly */
+            transition: opacity 0.5s ease, max-height 0.8s ease-out; 
+        }
+        .visible-content {
+            opacity: 1;
+            /* Large max-height for stability */
+            max-height: 1000px; 
+        }
+
+        /* --- WORD BOX SPECIFIC STYLES (EMOJI-BASED) --- */
+        #words-container .content-box {
+            min-height: 6rem;
+            padding: 0; 
+        }
+
+        /* Style for the visual cover (Emoji) */
+        .visual-cover {
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 5; 
+        }
+        
+        /* ADJUSTMENT FOR WORD CONTENT: Only hide opacity initially */
+        #words-container .hidden-content {
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10; 
+            min-height: 0;
+            text-align: center;
+            padding: 1rem;
+            /* KEY FIX: For absolute/fixed positioning, only hide opacity, not max-height */
+            opacity: 0; 
+            max-height: none; 
+            transition: opacity 0.5s ease;
+        }
+
+        /* The .visible-content class will override the opacity: 0 for words */
+        #words-container .visible-content {
+             max-height: none; /* Keep the height naturally sized */
+        }
+
+
+        /* --- CONFETTI STYLES --- */
+        @keyframes fall {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                /* Use CSS variables for random translation/rotation */
+                transform: translate(var(--x), 200px) rotate(var(--r)); 
+                opacity: 0;
+            }
+        }
+
+        /* CONFETTI FIX: Use fixed positioning relative to the viewport for simpler cleanup */
+        .confetti-container {
+            position: fixed; /* Fixed relative to viewport */
+            top: 0;
+            left: 0;
+            pointer-events: none; 
+            z-index: 50; 
+        }
+
+        .confetti-piece {
+            position: absolute;
+            display: block;
+            font-size: 1.5rem; 
+            animation: fall var(--duration) ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-blue-800 tracking-tight">
+                Lumbi International Academy
+            </h1>
+            <p class="text-xl text-gray-600 mt-2">Reading and Pronunciation Practice</p>
+        </header>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 pb-2">Reading Passages</h2>
+            <div id="passages-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="content-box bg-sky-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-[1.01] flex flex-col justify-center" onclick="revealContent(this)">
+                    <p class="text-lg font-semibold text-gray-700 text-center">Passage 1: The New Principal (Click to read)</p>
+                    <div class="hidden-content text-gray-800 mt-3 text-base leading-relaxed" data-full-content="When our new principal arrived, everyone was excited. She greeted the students with a warm smile. Her voice was calm but firm as she spoke. She told us that discipline and honesty were important. The teachers listened carefully to her words. She promised to make the school a better place. We all clapped and shouted with joy.">
+                        When our new principal arrived, everyone was excited. She greeted the students with a warm smile. Her voice was calm but firm as she spoke. She told us that discipline and honesty were important. The teachers listened carefully to her words. She promised to make the school a better place. We all clapped and shouted with joy.
+                    </div>
+                </div>
+
+                <div class="content-box bg-yellow-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-[1.01] flex flex-col justify-center" onclick="revealContent(this)">
+                    <p class="text-lg font-semibold text-gray-700 text-center">Passage 2: A Visit to the Library (Click to read)</p>
+                    <div class="hidden-content text-gray-800 mt-3 text-base leading-relaxed" data-full-content="Yesterday, our English teacher took us to the library. The room was quiet and full of colourful books. I picked a story about adventure and courage. My friend chose a book about science and space. The librarian showed us how to use the shelves. We learned how to borrow and return books properly. Reading made me feel peaceful and smart.">
+                        Yesterday, our English teacher took us to the library. The room was quiet and full of colourful books. I picked a story about adventure and courage. My friend chose a book about science and space. The librarian showed us how to use the shelves. We learned how to borrow and return books properly. Reading made me feel peaceful and smart.
+                    </div>
+                </div>
+
+                <div class="content-box bg-red-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-[1.01] flex flex-col justify-center" onclick="revealContent(this)">
+                    <p class="text-lg font-semibold text-gray-700 text-center">Passage 3: The Football Match (Click to read)</p>
+                    <div class="hidden-content text-gray-800 mt-3 text-base leading-relaxed" data-full-content="Last Saturday, our school played a football match. The weather was sunny and perfect for the game. Our captain encouraged the players to do their best. Everyone in the crowd was shouting and cheering. The referee blew his whistle to start the match. We played with great energy and teamwork. At half-time, we were already leading by two goals. The final whistle brought loud celebration.">
+                        Last Saturday, our school played a football match. The weather was sunny and perfect for the game. Our captain encouraged the players to do their best. Everyone in the crowd was shouting and cheering. The referee blew his whistle to start the match. We played with great energy and teamwork. At half-time, we were already leading by two goals. The final whistle brought loud celebration.
+                    </div>
+                </div>
+                
+                <div class="content-box bg-emerald-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-[1.01] flex flex-col justify-center" onclick="revealContent(this)">
+                    <p class="text-lg font-semibold text-gray-700 text-center">Passage 4: Helping at Home (Click to read)</p>
+                    <div class="hidden-content text-gray-800 mt-3 text-base leading-relaxed" data-full-content="Every weekend, I help my parents at home. I sweep the floor and wash the dishes. My younger brother helps to water the plants. Mother always says teamwork makes work easy. After cleaning, we all sit down for breakfast. Father tells us interesting stories about his school days. Sometimes, we laugh so hard that our stomachs hurt. Helping at home makes me feel responsible.">
+                        Every weekend, I help my parents at home. I sweep the floor and wash the dishes. My younger brother helps to water the plants. Mother always says teamwork makes work easy. After cleaning, we all sit down for breakfast. Father tells us interesting stories about his school days. Sometimes, we laugh so hard that our stomachs hurt. Helping at home makes me feel responsible.
+                    </div>
+                </div>
+
+                 <div class="content-box bg-pink-100 p-6 rounded-xl shadow-lg hover:shadow-xl transition transform hover:scale-[1.01] flex flex-col justify-center" onclick="revealContent(this)">
+                    <p class="text-lg font-semibold text-gray-700 text-center">Passage 5: The Power of Kindness (Click to read)</p>
+                    <div class="hidden-content text-gray-800 mt-3 text-base leading-relaxed" data-full-content="Kindness is one of the best gifts we can give. It costs nothing but means a lot to others. When we smile, we make people feel special. A kind word can brighten someone’s bad day. Helping a classmate shows good character and respect. Even a small act of kindness can spread far.">
+                        Kindness is one of the best gifts we can give. It costs nothing but means a lot to others. When we smile, we make people feel special. A kind word can brighten someone’s bad day. Helping a classmate shows good character and respect. Even a small act of kindness can spread far.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 pb-2">Pronunciation Words (Visual Clues - Click to Reveal)</h2>
+            <div id="words-container" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-8">
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-indigo-200 rounded-lg">
+                        <span class="text-8xl">👨🏻‍💼</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Architect">
+                        </div>
+                </div>
+                
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-red-200 rounded-lg">
+                        <span class="text-8xl">💪🏻</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Courageous">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-green-200 rounded-lg">
+                        <span class="text-8xl">🏡</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Environment">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-yellow-200 rounded-lg">
+                        <span class="text-8xl">😊</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Determination">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-blue-200 rounded-lg">
+                        <span class="text-8xl">🤏</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Opportunity">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-gray-200 rounded-lg">
+                        <span class="text-8xl">👩🏻‍🍼</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Responsibility">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-purple-200 rounded-lg">
+                        <span class="text-8xl">👨🏻‍💻</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Technology">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-orange-200 rounded-lg">
+                        <span class="text-8xl">🛫</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Achievement">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-cyan-200 rounded-lg">
+                        <span class="text-8xl">👨🏻‍🏫</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Discipline">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-pink-200 rounded-lg">
+                        <span class="text-8xl">🧕🏼</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Character">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-teal-200 rounded-lg">
+                        <span class="text-8xl">✍🏻️</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Examination">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-amber-200 rounded-lg">
+                        <span class="text-8xl">🛣️</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Adventure">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-lime-200 rounded-lg">
+                        <span class="text-8xl">🥳</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Celebrate">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-violet-200 rounded-lg">
+                        <span class="text-8xl">👬</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Community">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-red-300 rounded-lg">
+                        <span class="text-8xl">🥮</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Delicious">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-stone-200 rounded-lg">
+                        <span class="text-8xl">👨🏽‍🎓</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Education">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-blue-300 rounded-lg">
+                        <span class="text-8xl">🧑🏻‍🚀</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Confidence">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-fuchsia-200 rounded-lg">
+                        <span class="text-8xl">🙂</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Communication">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-rose-200 rounded-lg">
+                        <span class="text-8xl">🥰</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Beautiful">
+                    </div>
+                </div>
+
+                <div class="content-box bg-indigo-100 rounded-lg shadow hover:shadow-md transition transform hover:scale-105" onclick="revealContent(this)">
+                    <div class="visual-cover bg-slate-200 rounded-lg">
+                        <span class="text-8xl">✊🏽</span>
+                    </div>
+                    <div class="hidden-content text-center text-xl font-extrabold text-indigo-900" data-full-content="Honesty">
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        /**
+         * Creates and animates confetti (emojis) falling from the center of the target element.
+         * @param {HTMLElement} targetElement The element to center the confetti origin on.
+         */
+        function triggerConfetti(targetElement) {
+            const emojis = ['🎊', '🎉', '🪄', '✨'];
+            const count = 30; // Number of confetti pieces
+            const confettiContainer = document.createElement('div');
+            
+            confettiContainer.classList.add('confetti-container');
+            document.body.appendChild(confettiContainer); 
+            
+            // Get box position relative to the viewport (fixed position requires this)
+            const rect = targetElement.getBoundingClientRect();
+
+            for (let i = 0; i < count; i++) {
+                const span = document.createElement('span');
+                span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                span.classList.add('confetti-piece');
+
+                // Position the piece relative to the top/left of the *viewport*
+                // Origin is center of the box
+                span.style.top = `${rect.top + rect.height / 2}px`;
+                span.style.left = `${rect.left + rect.width / 2}px`;
+
+                // Random variables for animation
+                const duration = (Math.random() * 0.8) + 0.4; // 0.4s to 1.2s
+                const xOffset = (Math.random() - 0.5) * 300; // -150px to +150px horizontal spread
+                const rotation = (Math.random() * 720) * (Math.random() > 0.5 ? 1 : -1); 
+
+                // Apply CSS variables to the span for its unique animation
+                span.style.setProperty('--duration', `${duration}s`);
+                span.style.setProperty('--x', `${xOffset}px`);
+                span.style.setProperty('--r', `${rotation}deg`);
+                span.style.setProperty('animation-delay', `${Math.random() * 0.1}s`); 
+
+                confettiContainer.appendChild(span);
+            }
+
+            // Clean up the container after the longest animation duration finishes
+            setTimeout(() => {
+                confettiContainer.remove();
+            }, 1300); 
+        }
+
+        /**
+         * Handles the click event for both passage and word boxes.
+         * @param {HTMLElement} box The clicked container element.
+         */
+        function revealContent(box) {
+            // Only proceed if the box has not been revealed yet
+            if (box.classList.contains('revealed')) {
+                return; 
+            }
+
+            // 1. Identify content elements
+            const visualCover = box.querySelector('.visual-cover'); 
+            const passagePrompt = box.querySelector('p:not(.hidden-content)'); // Targets the P element that acts as the prompt
+            const contentContainer = box.querySelector('.hidden-content');
+            const fullContent = contentContainer ? contentContainer.getAttribute('data-full-content') : null;
+
+            if (!contentContainer || !fullContent) {
+                console.error("Content container or data-full-content not found.");
+                return;
+            }
+
+            // FIX: Ensure the inner text is set from the data attribute (for words, this makes the inner div show the text)
+            // For passages, this is redundant now, but harmless.
+            if (contentContainer.innerHTML.trim() === '') {
+                 contentContainer.innerHTML = fullContent;
+            }
+
+            // 2. Trigger Confetti/Celebration effect instantly
+            triggerConfetti(box);
+
+            // 3. The 'SURPRISE' effect (CSS Animation)
+            box.classList.add('surprise');
+
+            // 4. Wait for the surprise animation to finish (0.4s total duration)
+            setTimeout(() => {
+                box.classList.remove('surprise');
+
+                // 5. Hide the prompt element and show content
+                
+                if (visualCover) {
+                    // WORD BOX: Fade out visual cover (emoji)
+                    visualCover.classList.add('opacity-0', 'transform', 'scale-150'); // Add scale-out effect
+                    visualCover.style.pointerEvents = 'none'; 
+                } else if (passagePrompt) {
+                    // PASSAGE BOX: Hide text prompt
+                    passagePrompt.classList.add('hidden'); 
+                }
+                
+                // Show the full content (word or passage text)
+                contentContainer.classList.remove('hidden-content');
+                contentContainer.classList.add('visible-content');
+                
+                // 6. Mark as revealed and apply success styling
+                box.classList.add('revealed');
+
+                // Remove the specific color classes and apply the 'revealed' background color
+                // This makes the transition smooth after the initial click color (surprise)
+                box.classList.remove('bg-sky-100', 'bg-yellow-100', 'bg-red-100', 'bg-emerald-100', 'bg-pink-100', 'bg-indigo-100');
+                box.classList.add('bg-green-100', 'shadow-2xl');
+
+            }, 400); 
+        }
+    </script>
+</body>
+</html>
